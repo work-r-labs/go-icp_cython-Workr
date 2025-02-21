@@ -41,7 +41,7 @@ def init_go_icp():
     return goicp, rNode, tNode
 
 
-def get_points_data():
+def get_points_data(goicp, rNode, tNode):
     Nm, a_points, _ = loadPointCloud("./data/cad_model_points.txt")
     Nd, b_points, np_b_points = loadPointCloud("./data/data_points.txt")
 
@@ -52,7 +52,7 @@ def get_points_data():
     goicp.setInitNodeRot(rNode)
     goicp.setInitNodeTrans(tNode)
 
-    return Nd, np_b_points
+    return Nd, np_b_points, goicp
 
 
 def run_icp(goicp, Nd, np_b_points):
@@ -100,6 +100,6 @@ def run_icp(goicp, Nd, np_b_points):
 
 if __name__ == "__main__":
     goicp, rNode, tNode = init_go_icp()
-    Nd, np_b_points = get_points_data()
+    Nd, np_b_points, goicp = get_points_data(goicp, rNode, tNode)
     transform = run_icp(goicp, Nd, np_b_points)
     print(transform)
