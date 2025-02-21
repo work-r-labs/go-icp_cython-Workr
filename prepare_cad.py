@@ -50,19 +50,7 @@ def cad_to_points(input_path, n_points=10000):
     return scale
 
 
-if __name__ == "__main__":
-    import argparse
-
-    parser = argparse.ArgumentParser()
-    parser.add_argument("input_path", help="Path to input CAD file")
-    parser.add_argument("data_ply", help="Path to input PLY file")
-    parser.add_argument(
-        "--n_points", type=int, default=10000, help="Number of points to sample"
-    )
-    args = parser.parse_args()
-
-    scale = cad_to_points(args.input_path, args.n_points)
-
+def prepare_points(data_ply_path, scale):
     # Load the sampled CAD points
     cad_pcd = o3d.io.read_point_cloud(CAD_POINTS_PATH)
     cad_points = np.asarray(cad_pcd.points)
@@ -71,7 +59,7 @@ if __name__ == "__main__":
     np.savetxt("data/cad_model_points.txt", cad_points)
 
     # Load the sensor data points
-    data_pcd = o3d.io.read_point_cloud(args.data_ply)
+    data_pcd = o3d.io.read_point_cloud(data_ply_path)
     data_points = np.asarray(data_pcd.points)
 
     # Calculate shift
@@ -87,5 +75,18 @@ if __name__ == "__main__":
 
     # Save data points to txt
     np.savetxt("data/data_points.txt", data_points)
+
+
+if __name__ == "__main__":
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("input_path", help="Path to input CAD file")
+    parser.add_argument("data_ply", help="Path to input PLY file")
+    parser.add_argument("--n_points", type=int, default=10000, help="Number of points to sample")
+    args = parser.parse_args()
+
+    scale = cad_to_points(args.input_path, args.n_points)
+    prepare_points(args.data_ply, scale)
 
     print("done...")

@@ -19,7 +19,7 @@ To run
 
 ```
 python prepare_cad.py data/cad.stl data/object_with_end.ply
-python workr_test.py
+python run_icp.py
 
 ```
 
@@ -31,6 +31,7 @@ The first number below determines accuracy/speed tradeoff. If it's higher it wil
 There are some notes below on sampling from the cad model, the first setting I guessed worked fine though.
 
 Input point clouds get scaled and shifted to be in -1.0 to 1.0 boxes. So this has to be undone before reporting the transform difference. 
+This is in apply_transform.py and can be checked with visualise.py
 
 
 # NOTE:

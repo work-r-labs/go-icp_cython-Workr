@@ -41,77 +41,65 @@ def init_go_icp():
     return goicp, rNode, tNode
 
 
-goicp, rNode, tNode = init_go_icp()
+def get_points_data():
+    Nm, a_points, _ = loadPointCloud("./data/cad_model_points.txt")
+    Nd, b_points, np_b_points = loadPointCloud("./data/data_points.txt")
 
-Nm, a_points, _ = loadPointCloud("./data/cad_model_points.txt")
-Nd, b_points, np_b_points = loadPointCloud("./data/data_points.txt")
+    goicp.loadModelAndData(Nm, a_points, Nd, b_points)
 
-goicp.loadModelAndData(Nm, a_points, Nd, b_points)
+    # LESS DT Size = LESS TIME CONSUMPTION = HIGHER ERROR
+    goicp.setDTSizeAndFactor(100, 2.0)
+    goicp.setInitNodeRot(rNode)
+    goicp.setInitNodeTrans(tNode)
 
-# LESS DT Size = LESS TIME CONSUMPTION = HIGHER ERROR
-goicp.setDTSizeAndFactor(100, 2.0)
-goicp.setInitNodeRot(rNode)
-goicp.setInitNodeTrans(tNode)
-
-start = time.time()
-print("Building Distance Transform...")
-goicp.BuildDT()
-print("REGISTERING....")
-goicp.Register()
-end = time.time()
-print("TOTAL TIME : ", (end - start))
-optR = np.array(goicp.optimalRotation())
-optT = goicp.optimalTranslation()
-optT.append(1.0)
-optT = np.array(optT)
-
-transform = np.empty((4, 4))
-transform[:3, :3] = optR
-transform[:, 3] = optT
-
-save_transform(transform, "data/Ohat_to_Chat_scaled.txt")
-
-print(np_b_points.shape, np.ones((Nd, 1)).shape)
-
-# Now transform the data mesh to fit the model mesh
-transform_model_points = (transform.dot(np.hstack((np_b_points, np.ones((Nd, 1)))).T)).T
-transform_model_points = transform_model_points[:, :3]
-
-PLY_FILE_HEADER = (
-    "ply\nformat ascii 1.0\ncomment PYTHON generated\nelement vertex %s\nproperty float x\nproperty float y\nproperty float z\nend_header"
-    % (Nd)
-)
-np.savetxt(
-    "./data/data_points_aligned.ply",
-    transform_model_points,
-    header=PLY_FILE_HEADER,
-    comments="",
-)
-
-##  Broken shit
-# import open3d as o3d
-# # Convert numpy arrays to Open3D point clouds
-# source = o3d.geometry.PointCloud()
-# target = o3d.geometry.PointCloud()
-# source = o3d.io.read_point_cloud("./data/data_points.txt")
-# target = o3d.io.read_point_cloud("./data/cad_model_points.txt")
-
-# # Apply ICP
-# reg_p2p = o3d.pipelines.registration.registration_icp(
-#     source, target, 0.02,
-#     np.eye(4),
-#     o3d.pipelines.registration.TransformationEstimationPointToPoint(),
-#     o3d.pipelines.registration.ICPConvergenceCriteria(max_iteration=2000)
-# )
-
-# transformed_source = source.transform(reg_p2p.transformation)
-
-# # Save the transformed point cloud
-# o3d.io.write_point_cloud("./data/transformed_source.ply", transformed_source)
+    return Nd, np_b_points
 
 
-## END DO COMPARISON
+def run_icp(goicp, Nd, np_b_points):
+    start = time.time()
+    print("Building Distance Transform...")
+    goicp.BuildDT()
+    print("REGISTERING....")
+    goicp.Register()
+    end = time.time()
+    print("TOTAL TIME : ", (end - start))
+    optR = np.array(goicp.optimalRotation())
+    optT = goicp.optimalTranslation()
+    optT.append(1.0)
+    optT = np.array(optT)
 
-print(optR)
-print(optT)
-print(transform)
+    transform = np.empty((4, 4))
+    transform[:3, :3] = optR
+    transform[:, 3] = optT
+
+    save_transform(transform, "data/Ohat_to_Chat_scaled.txt")
+
+    print(np_b_points.shape, np.ones((Nd, 1)).shape)
+
+    # Now transform the data mesh to fit the model mesh
+    transform_model_points = (transform.dot(np.hstack((np_b_points, np.ones((Nd, 1)))).T)).T
+    transform_model_points = transform_model_points[:, :3]
+
+    PLY_FILE_HEADER = (
+        "ply\nformat ascii 1.0\ncomment PYTHON generated\nelement vertex %s\nproperty float x\nproperty float y\nproperty float z\nend_header"
+        % (Nd)
+    )
+    np.savetxt(
+        "./data/data_points_aligned.ply",
+        transform_model_points,
+        header=PLY_FILE_HEADER,
+        comments="",
+    )
+
+    print(optR)
+    print(optT)
+    print(transform)
+
+    return transform
+
+
+if __name__ == "__main__":
+    goicp, rNode, tNode = init_go_icp()
+    Nd, np_b_points = get_points_data()
+    transform = run_icp(goicp, Nd, np_b_points)
+    print(transform)
