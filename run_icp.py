@@ -4,6 +4,7 @@ import time
 
 from utils import save_transform
 
+
 def loadPointCloud(filename):
     pcloud = np.loadtxt(filename, skiprows=1)
     plist = pcloud.tolist()
@@ -114,4 +115,3 @@ np.savetxt(
 print(optR)
 print(optT)
 print(transform)
-

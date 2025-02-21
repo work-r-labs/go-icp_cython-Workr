@@ -4,5 +4,4 @@ trimesh
 autowrap
 setuptools
 ruff
-rerun-sdk
-rerun
+rerun-sdk==0.19.1

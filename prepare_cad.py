@@ -16,25 +16,25 @@ def cad_to_points(input_path, n_points=10000):
 
     Rescales and centers the output file
     """
-    
+
     # Load mesh using trimesh
     mesh = trimesh.load(input_path)
 
     if any(mesh.bounds[1] - mesh.bounds[0] > 1.0):
         print("Your cad is in mm or cm, make sure the input data is in the same units")
-    
+
     # Center about zero, save transform
     shift = np.mean(mesh.vertices, axis=0)
     mesh.vertices -= shift
-    
+
     # Create homogeneous transform matrix
     transform = np.eye(4)
-    transform[:3, 3] = shift
+    transform[:3, 3] = -shift
     save_transform(transform, "data/C_to_Chat.txt")
 
     # Scale so the mesh is between -1 and 1.0
     scale = 1 / np.max(mesh.bounds[1] - mesh.bounds[0])
-    mesh.apply_scale(scale) 
+    mesh.apply_scale(scale)
     np.savetxt("data/scale.txt", np.array([scale]))
 
     # Sample points from surface
@@ -77,15 +77,15 @@ if __name__ == "__main__":
     # Calculate shift
     shift = np.mean(data_points, axis=0)
     data_points -= shift
-    
+
     transform = np.eye(4)
-    transform[:3, 3] = shift
+    transform[:3, 3] = -shift
     save_transform(transform, "data/O_to_Ohat.txt")
-    
+
     # Scale points
     data_points *= scale
 
     # Save data points to txt
     np.savetxt("data/data_points.txt", data_points)
-    
+
     print("done...")
