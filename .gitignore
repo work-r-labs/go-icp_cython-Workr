@@ -8,3 +8,6 @@ py_goicp.pyx
 py_goicp.cpp
 *.egg-info
 
+data/*.txt
+data/*.ply
+

@@ -2,6 +2,7 @@ from py_goicp import GoICP, POINT3D, ROTNODE, TRANSNODE
 import numpy as np
 import time
 
+from utils import save_transform
 
 def loadPointCloud(filename):
     pcloud = np.loadtxt(filename, skiprows=1)
@@ -47,7 +48,7 @@ Nd, b_points, np_b_points = loadPointCloud("./data/data_points.txt")
 goicp.loadModelAndData(Nm, a_points, Nd, b_points)
 
 # LESS DT Size = LESS TIME CONSUMPTION = HIGHER ERROR
-goicp.setDTSizeAndFactor(300, 2.0)
+goicp.setDTSizeAndFactor(100, 2.0)
 goicp.setInitNodeRot(rNode)
 goicp.setInitNodeTrans(tNode)
 
@@ -67,6 +68,8 @@ transform = np.empty((4, 4))
 transform[:3, :3] = optR
 transform[:, 3] = optT
 
+save_transform(transform, "data/Ohat_to_Chat_scaled.txt")
+
 print(np_b_points.shape, np.ones((Nd, 1)).shape)
 
 # Now transform the data mesh to fit the model mesh
@@ -84,7 +87,7 @@ np.savetxt(
     comments="",
 )
 
-## DO COMPARISON - Broken shit
+##  Broken shit
 # import open3d as o3d
 # # Convert numpy arrays to Open3D point clouds
 # source = o3d.geometry.PointCloud()
@@ -111,3 +114,4 @@ np.savetxt(
 print(optR)
 print(optT)
 print(transform)
+
