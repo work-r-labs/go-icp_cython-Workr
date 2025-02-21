@@ -1,3 +1,38 @@
+# WORKR STUFF
+This is our fork of https://github.com/aalavandhaann/go-icp_cython
+
+We add some utility scripts etc
+
+## Quickstart
+To install
+```
+uv venv
+source .venv/bin/activate
+uv pip install -r requirements.txt
+python setup.py build_ext --inplace
+python setup.py install
+
+```
+
+
+To run
+
+```
+python prepare_cad.py data/cad.stl data/object_with_end.ply
+python workr_test.py
+
+```
+
+## Knobs
+
+The first number below determines accuracy/speed tradeoff. If it's higher it will be slower. 
+`goicp.setDTSizeAndFactor(300, 2.0)`
+
+There are some notes below on sampling from the cad model, the first setting I guessed worked fine though.
+
+Input point clouds get scaled and shifted to be in -1.0 to 1.0 boxes. So this has to be undone before reporting the transform difference. 
+
+
 # NOTE:
 This is a cython version of the original go-icp project by [yangjiaolong](https://github.com/yangjiaolong).
 

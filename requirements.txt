@@ -1,0 +1,6 @@
+numpy
+open3d
+trimesh
+autowrap
+setuptools
+ruff
