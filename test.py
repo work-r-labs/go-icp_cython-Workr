@@ -39,7 +39,7 @@ Nd, b_points, np_b_points = loadPointCloud('./tests/data_bunny.txt');
 
 goicp.loadModelAndData(Nm, a_points, Nd, b_points);
 #LESS DT Size = LESS TIME CONSUMPTION = HIGHER ERROR
-goicp.setDTSizeAndFactor(300, 2.0);
+goicp.setDTSizeAndFactor(100, 2.0);
 goicp.setInitNodeRot(rNode);
 goicp.setInitNodeTrans(tNode);
 

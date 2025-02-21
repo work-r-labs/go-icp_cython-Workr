@@ -6,3 +6,5 @@ __pycache__/
 MANIFEST
 py_goicp.pyx
 py_goicp.cpp
+*.egg-info
+
