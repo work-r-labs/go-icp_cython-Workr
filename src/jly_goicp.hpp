@@ -102,7 +102,7 @@ public:
 	DT3D dt;
 
 	GoICP();
-	float Register();
+	float Register(float timeout);
 	void BuildDT();
 
 	void loadModelAndData(int  m, std::vector<POINT3D> m_points, int  n, std::vector<POINT3D> n_points);
@@ -121,12 +121,13 @@ public:
 	float optError;
 	Matrix optR;
 	Matrix optT;
-
+	
 	clock_t clockBegin;
-
+	
 	float trimFraction;
 	int inlierNum;
 	bool doTrim;
+	bool timedOut = false;
 
 private:
 	//temp variables
@@ -143,7 +144,7 @@ private:
 
 	float ICP(Matrix& R_icp, Matrix& t_icp);
 	float InnerBnB(float* maxRotDisL, TRANSNODE* nodeTransOut);
-	float OuterBnB();
+	float OuterBnB(float timeout);
 	void Initialize();
 	void Clear();
 
@@ -526,7 +527,7 @@ float GoICP::InnerBnB(float* maxRotDisL, TRANSNODE* nodeTransOut)
 	return optErrorT;
 }
 
-float GoICP::OuterBnB()
+float GoICP::OuterBnB(float timeout)
 {
 	int i, j;
 	ROTNODE nodeRot, nodeRotParent;
@@ -537,6 +538,10 @@ float GoICP::OuterBnB()
 	float lb, ub, error, dis;
 	clock_t clockBeginICP;
 	priority_queue<ROTNODE> queueRot;
+
+	clock_t startTime = clock();
+
+	cout << "OuterBnB running " << endl;
 
 	// Calculate Initial Error
 	optError = 0;
@@ -588,6 +593,16 @@ float GoICP::OuterBnB()
 		  cout << "Rotation Queue Empty" << endl;
 		  cout << "Error*: " << optError << ", LB: " << lb << endl;
 		  break;
+		}
+
+		if (timeout > 0) {
+			double elapsedTime = (double)(clock() - startTime) / CLOCKS_PER_SEC;
+			if (elapsedTime >= timeout) {
+				cout << "Timeout reached after " << elapsedTime << " seconds" << endl;
+				cout << "Error*: " << optError << ", LB: " << nodeRotParent.lb << endl;
+				timedOut = true;
+				break;
+			}
 		}
 
 		// Access rotation cube with lowest lower bound...
@@ -737,15 +752,20 @@ float GoICP::OuterBnB()
 		}
 	}
 
+	if (timedOut) {
+		cout << "Timeout reached. Exiting..." << endl;
+		optError = 0.0f;
+	}
+
 	return optError;
 }
 
-float GoICP::Register()
+float GoICP::Register(float timeout)
 {
 	std::cout << "INITIALIZE THE GOICP SYSTEM :: " << std::endl;
 	Initialize();
 	std::cout << "FINDING OUTERBNB :: " << std::endl;
-	OuterBnB();
+	OuterBnB(timeout);
 	std::cout << "CLEARING THE GOICP SYSTEM :: " << std::endl;
 	Clear();
 

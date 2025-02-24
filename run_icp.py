@@ -60,7 +60,7 @@ def run_icp(goicp, Nd, np_b_points):
     print("Building Distance Transform...")
     goicp.BuildDT()
     print("REGISTERING....")
-    goicp.Register()
+    goicp.Register(3.0)
     end = time.time()
     print("TOTAL TIME : ", (end - start))
     optR = np.array(goicp.optimalRotation())

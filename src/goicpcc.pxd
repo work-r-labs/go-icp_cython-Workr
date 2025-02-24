@@ -40,7 +40,7 @@ cdef extern from "jly_goicp.hpp":
         bool doTrim
     
         GoICP()
-        float Register() except +
+        float Register(float timeout) except +
         void BuildDT() except + 
         libcpp_vector[libcpp_vector[double]] optimalRotation() except +
         libcpp_vector[double] optimalTranslation() except +
